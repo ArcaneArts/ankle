@@ -14,4 +14,4 @@ jobs:
           channel: stable
       - uses: bluefireteam/flutter-gh-pages@v9
         with:
-          baseHref: /ankle/  # Omit for user sites
+          baseHref: /
