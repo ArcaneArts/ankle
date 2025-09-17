@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:ankle/charsets.dart';
-import 'package:ankle/codec.dart';
 import 'package:arcane/arcane.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -43,11 +41,15 @@ class _AnkleScreenState extends State<AnkleScreen> {
 
   List<String> genShares() {
     try {
-      return encodeSSS(
-        threshold,
-        toEncode,
-        charset,
-      ).take(min(max(2, 2 * threshold), 255)).toList();
+      return SSSS
+          .encodeShares(
+            secretBytes: toEncode.encodedUtf8,
+            threshold: threshold,
+            seed: "$toEncode$charset$threshold".hashCode,
+          )
+          .take(min(max(2, 2 * threshold), 255))
+          .map((i) => i.encodeBundleCharset(charset))
+          .toList();
     } catch (e) {
       return ["ERROR"];
     }
@@ -56,17 +58,9 @@ class _AnkleScreenState extends State<AnkleScreen> {
   @override
   Widget build(BuildContext context) {
     try {
-      gen = encodeSSS(threshold, toEncode.trim(), charset).take(1).first;
-    } catch (e, es) {
-      if (kDebugMode) {
-        print(e);
-        print(es);
-      }
-      gen = "ERROR";
-    }
-
-    try {
-      decodedTry = decodeSSS(toDecode.split("\n"));
+      decodedTry = SSSS
+          .decodeSSS(toDecode.split("\n").map((i) => i.decodedBundle).toList())
+          .utf8;
     } catch (e, es) {
       if (kDebugMode) {
         print(e);
@@ -110,7 +104,9 @@ class _AnkleScreenState extends State<AnkleScreen> {
                                       item.lowerCamelCaseToUpperSpacedCase,
                                     ),
                                     subtitle: OverflowMarquee(
-                                      child: Text((charsets[item] ?? "bad")),
+                                      child: Text(
+                                        (charsetPalettes[item] ?? "bad"),
+                                      ),
                                     ),
                                   );
                                 },
@@ -119,21 +115,22 @@ class _AnkleScreenState extends State<AnkleScreen> {
                                     PopoverConstraint.anchorMaxSize,
                                 onChanged: (value) => setState(() {
                                   charset =
-                                      charsets[value ?? "error"] ?? "fail";
+                                      charsetPalettes[value ?? "error"] ??
+                                      "fail";
                                 }),
                                 constraints: BoxConstraints(
                                   minWidth: double.maxFinite,
                                 ),
                                 value: charset.isEmpty
                                     ? null
-                                    : charsets
+                                    : charsetPalettes
                                           .where((k, v) => v == charset)
                                           .keys
                                           .firstOrNull,
                                 popup: SelectPopup(
                                   items: SelectItemList(
                                     children: [
-                                      ...charsets.keys.map(
+                                      ...charsetPalettes.keys.map(
                                         (i) => SelectItemButton(
                                           value: i,
                                           child: Basic(
@@ -142,7 +139,7 @@ class _AnkleScreenState extends State<AnkleScreen> {
                                             ),
                                             subtitle: OverflowMarquee(
                                               child: Text(
-                                                (charsets[i] ?? "bad"),
+                                                (charsetPalettes[i] ?? "bad"),
                                               ),
                                             ),
                                           ),
