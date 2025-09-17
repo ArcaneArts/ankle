@@ -1,0 +1,17 @@
+name: Deploy to GH Pages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - uses: bluefireteam/flutter-gh-pages@v9
+        with:
+          baseHref: /ankle/  # Omit for user sites
