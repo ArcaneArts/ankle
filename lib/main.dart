@@ -45,7 +45,7 @@ class _AnkleScreenState extends State<AnkleScreen> {
           .encodeShares(
             secretBytes: toEncode.encodedUtf8,
             threshold: threshold,
-            seed: "$toEncode$charset$threshold".hashCode,
+            seed: 69,
           )
           .take(min(max(2, 2 * threshold), 255))
           .map((i) => i.encodeBundleCharset(charset))
@@ -321,6 +321,8 @@ class _AnkleScreenState extends State<AnkleScreen> {
               ),
             ),
           ].joinSeparator(Gap(16)),
+          Gap(16),
+          Text("V2"),
           Gap(16),
         ],
       ).padSliverHorizontal(16),
